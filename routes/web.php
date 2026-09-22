@@ -9,6 +9,7 @@ use App\Http\Controllers\Customer\FuzzyCalculationController;
 use App\Http\Controllers\Customer\OdometerController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\RecommendationController;
+use App\Http\Controllers\Customer\ServiceHistoryController;
 use App\Http\Controllers\Customer\VehicleController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,14 +49,10 @@ Route::middleware(['auth', 'customer'])->group(function (): void {
     Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 
-    Route::view('/service-history', 'customer.placeholder', [
-        'eyebrow' => 'Catatan Kendaraan',
-        'title' => 'Riwayat Servis',
-        'description' => 'Semua pekerjaan servis akan tersimpan sebagai catatan yang mudah ditelusuri.',
-        'emptyTitle' => 'Belum ada riwayat servis',
-        'emptyDescription' => 'Riwayat akan muncul setelah kunjungan servis diselesaikan.',
-        'icon' => 'heroicon-o-clipboard-document-list',
-    ])->name('service-history.index');
+    Route::get('/service-history', [ServiceHistoryController::class, 'index'])
+        ->name('service-history.index');
+    Route::get('/service-history/{record}', [ServiceHistoryController::class, 'show'])
+        ->name('service-history.show');
 
     Route::view('/notifications', 'customer.placeholder', [
         'eyebrow' => 'Tetap Terinformasi',
