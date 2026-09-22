@@ -21,4 +21,25 @@ enum BookingStatus: string
     {
         return array_map(static fn (self $status): string => $status->value, self::active());
     }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Pending => 'Menunggu Konfirmasi',
+            self::Confirmed => 'Dikonfirmasi',
+            self::InService => 'Sedang Servis',
+            self::Completed => 'Selesai',
+            self::Cancelled => 'Dibatalkan',
+        };
+    }
+
+    public function tone(): string
+    {
+        return match ($this) {
+            self::Pending => 'warning',
+            self::Confirmed, self::InService => 'brand',
+            self::Completed => 'success',
+            self::Cancelled => 'danger',
+        };
+    }
 }

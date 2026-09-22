@@ -6,5 +6,5 @@
         <h1 class="text-3xl font-semibold tracking-[-0.035em] text-ink sm:text-4xl">{{ $title }}</h1>
         @if ($description)<p class="mt-3 max-w-xl text-sm leading-6 text-ink-muted sm:text-base">{{ $description }}</p>@endif
     </div>
-    @isset($actions)<div class="flex shrink-0 items-center gap-3">{{ $actions }}</div>@endisset
+    @isset($actions)<div class="flex shrink-0 flex-wrap items-center gap-3">{{ $actions }}</div>@endisset
 </header>
