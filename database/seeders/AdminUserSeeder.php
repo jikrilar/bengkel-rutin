@@ -13,11 +13,14 @@ class AdminUserSeeder extends Seeder
         $email = config('admin.email');
         $password = config('admin.password');
 
-        if (! $email || ! $password) {
+        if ((! $email || ! $password) && app()->isProduction()) {
             $this->command?->warn('Admin seed dilewati: ADMIN_EMAIL dan ADMIN_PASSWORD belum diatur.');
 
             return;
         }
+
+        $email ??= 'admin@example.test';
+        $password ??= 'password';
 
         User::query()->updateOrCreate(
             ['email' => mb_strtolower($email)],
