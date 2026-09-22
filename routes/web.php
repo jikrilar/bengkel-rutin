@@ -4,6 +4,11 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Customer\FuzzyCalculationController;
+use App\Http\Controllers\Customer\OdometerController;
+use App\Http\Controllers\Customer\ProfileController;
+use App\Http\Controllers\Customer\RecommendationController;
+use App\Http\Controllers\Customer\VehicleController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'landing')->name('home');
@@ -26,23 +31,16 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::middleware(['auth', 'customer'])->group(function (): void {
     Route::view('/dashboard', 'customer.dashboard')->name('dashboard');
 
-    Route::view('/vehicles', 'customer.placeholder', [
-        'eyebrow' => 'Garasi Anda',
-        'title' => 'Kendaraan',
-        'description' => 'Data kendaraan dan interval servis akan tersedia pada tahap berikutnya.',
-        'emptyTitle' => 'Belum ada kendaraan',
-        'emptyDescription' => 'Fitur penambahan kendaraan disiapkan pada T03 dan pengalaman lengkapnya pada task customer.',
-        'icon' => 'heroicon-o-truck',
-    ])->name('vehicles.index');
+    Route::resource('vehicles', VehicleController::class)->except(['destroy']);
+    Route::post('/vehicles/{vehicle}/odometer', [OdometerController::class, 'store'])
+        ->name('vehicles.odometer.store');
 
-    Route::view('/recommendations', 'customer.placeholder', [
-        'eyebrow' => 'Perawatan Terencana',
-        'title' => 'Rekomendasi Servis',
-        'description' => 'Rekomendasi berdasarkan jarak tempuh dan waktu akan dirangkum di sini.',
-        'emptyTitle' => 'Belum ada rekomendasi',
-        'emptyDescription' => 'Tambahkan kendaraan dan catatan odometer setelah fondasi domain tersedia.',
-        'icon' => 'heroicon-o-wrench-screwdriver',
-    ])->name('recommendations.index');
+    Route::get('/recommendations', [RecommendationController::class, 'index'])
+        ->name('recommendations.index');
+    Route::get('/recommendations/{vehicle}', [RecommendationController::class, 'show'])
+        ->name('recommendations.show');
+    Route::get('/recommendations/{vehicle}/calculation/{calculation}', [FuzzyCalculationController::class, 'show'])
+        ->name('recommendations.calculation.show');
 
     Route::view('/bookings', 'customer.placeholder', [
         'eyebrow' => 'Kunjungan Bengkel',
@@ -71,12 +69,7 @@ Route::middleware(['auth', 'customer'])->group(function (): void {
         'icon' => 'heroicon-o-bell',
     ])->name('notifications.index');
 
-    Route::view('/profile', 'customer.placeholder', [
-        'eyebrow' => 'Akun Customer',
-        'title' => 'Profil',
-        'description' => 'Kelola informasi kontak dan keamanan akun Anda.',
-        'emptyTitle' => 'Pengaturan profil segera tersedia',
-        'emptyDescription' => 'Data akun inti sudah tersimpan dan aman. Form pengelolaan profil hadir pada task customer.',
-        'icon' => 'heroicon-o-user-circle',
-    ])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
 });

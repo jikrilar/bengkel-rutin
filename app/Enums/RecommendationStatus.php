@@ -31,4 +31,34 @@ enum RecommendationStatus: string
             self::Urgent => 2,
         };
     }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::NotNeeded => 'Belum Perlu Servis',
+            self::Approaching => 'Servis Mendekat',
+            self::Urgent => 'Segera Servis',
+            self::Unavailable => 'Rekomendasi Belum Tersedia',
+        };
+    }
+
+    public function tone(): string
+    {
+        return match ($this) {
+            self::NotNeeded => 'success',
+            self::Approaching => 'warning',
+            self::Urgent => 'danger',
+            self::Unavailable => 'neutral',
+        };
+    }
+
+    public function explanation(): string
+    {
+        return match ($this) {
+            self::NotNeeded => 'Kendaraan masih berada dalam rentang servis yang aman.',
+            self::Approaching => 'Jadwal servis mulai mendekat. Siapkan waktu kunjungan yang sesuai.',
+            self::Urgent => 'Kebutuhan servis sudah mendesak. Jadwalkan kunjungan sesegera mungkin.',
+            self::Unavailable => 'Lengkapi baseline servis untuk mendapatkan rekomendasi.',
+        };
+    }
 }

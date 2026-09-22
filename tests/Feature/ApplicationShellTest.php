@@ -43,7 +43,8 @@ it('renders the dashboard through Livewire', function () {
     Livewire::actingAs($customer)
         ->test(Overview::class)
         ->assertSee('Halo, Sari')
-        ->assertSee('Garasi Anda masih kosong');
+        ->assertSee('Belum ada kendaraan')
+        ->assertSee('Tambah Kendaraan');
 });
 
 it('redirects guests away from customer pages', function () {

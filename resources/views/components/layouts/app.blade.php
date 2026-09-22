@@ -13,6 +13,7 @@
 @endphp
 
 <x-layouts.public :title="$title">
+    <a href="#main-content" class="sr-only fixed left-4 top-4 z-50 rounded-field bg-action px-4 py-3 text-sm font-semibold text-ink-inverse focus:not-sr-only">Lewati ke konten</a>
     <div x-data="{ sidebarOpen: false, profileOpen: false }" x-on:keydown.escape.window="sidebarOpen = false; profileOpen = false" class="min-h-screen">
         <div x-cloak x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-ink/55 lg:hidden" x-on:click="sidebarOpen = false" aria-hidden="true"></div>
 
@@ -81,7 +82,7 @@
                 </a>
             </header>
 
-            <main class="mx-auto w-full max-w-[76rem] px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
+            <main id="main-content" tabindex="-1" class="mx-auto w-full max-w-[76rem] px-4 py-7 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
                 {{ $slot }}
             </main>
         </div>
