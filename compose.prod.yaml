@@ -1,0 +1,115 @@
+name: sistem-jadwal-servis-production
+
+x-production-application: &production-application
+  image: "sistem-jadwal-servis-app:${APP_IMAGE_TAG:-latest}"
+  restart: unless-stopped
+  env_file:
+    - .env
+  environment:
+    APP_ENV: production
+    APP_DEBUG: "false"
+  volumes:
+    - storage_data:/var/www/html/storage
+  networks:
+    - application
+
+services:
+  nginx:
+    image: "sistem-jadwal-servis-nginx:${APP_IMAGE_TAG:-latest}"
+    build:
+      context: .
+      target: nginx-production
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - storage_data:/var/www/html/storage:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/up"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - application
+
+  app:
+    <<: *production-application
+    build:
+      context: .
+      target: production
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      CONTAINER_ROLE: app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - php
+        - -r
+        - '$$socket = @fsockopen("127.0.0.1", 9000); if (! $$socket) { exit(1); } fclose($$socket);'
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
+  queue:
+    <<: *production-application
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      CONTAINER_ROLE: queue
+    healthcheck:
+      disable: true
+    depends_on:
+      app:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+  scheduler:
+    <<: *production-application
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      CONTAINER_ROLE: scheduler
+    healthcheck:
+      disable: true
+    depends_on:
+      app:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: "${DB_DATABASE:-sistem_jadwal_servis}"
+      MYSQL_USER: "${DB_USERNAME:-laravel}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-change-me}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-change-root-password}"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - application
+
+networks:
+  application:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  storage_data:
