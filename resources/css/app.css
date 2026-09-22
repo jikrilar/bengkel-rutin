@@ -1,9 +1,66 @@
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/livewire/src/Features/SupportPagination/views/*.blade.php';
+@source '../../vendor/blade-ui-kit/blade-heroicons/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';
+
+    --color-canvas: #f5f4f0;
+    --color-surface: #ffffff;
+    --color-surface-muted: #efeee9;
+    --color-surface-subtle: #f8f7f4;
+
+    --color-ink: #191918;
+    --color-ink-muted: #6f6e69;
+    --color-ink-subtle: #96938b;
+    --color-ink-inverse: #ffffff;
+
+    --color-line: #e3e1db;
+    --color-line-strong: #cac7bf;
+    --color-line-emphasis: #a9a69e;
+
+    --color-brand: #a84f32;
+    --color-brand-hover: #93452d;
+    --color-brand-soft: #f1e3dd;
+
+    --color-action: #191918;
+    --color-action-hover: #2a2a28;
+
+    --color-success: #3e7453;
+    --color-success-soft: #e7efea;
+    --color-warning: #a56a19;
+    --color-warning-soft: #f5eedc;
+    --color-danger: #b8493f;
+    --color-danger-soft: #f5e5e2;
+    --color-neutral: #77746d;
+    --color-neutral-soft: #eceae5;
+
+    --radius-field: 0.5rem;
+    --radius-panel: 0.75rem;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply bg-canvas font-sans text-ink antialiased;
+    }
+
+    ::selection {
+        @apply bg-brand-soft text-ink;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-brand);
+        outline-offset: 3px;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
 }
