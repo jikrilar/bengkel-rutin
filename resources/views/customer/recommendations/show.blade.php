@@ -33,7 +33,7 @@
                             Mulai {{ $calculation->recommended_from_date->translatedFormat('j F Y') }}
                         @endif
                     </p>
-                    <x-button class="mt-6" :href="route('bookings.index')">Buat Jadwal Servis</x-button>
+                    <x-button class="mt-6" :href="route('bookings.create', ['vehicle' => $vehicle->id, 'date' => $calculation->recommended_date->toDateString()])">Buat Jadwal Servis</x-button>
                 </div>
             </div>
         </section>

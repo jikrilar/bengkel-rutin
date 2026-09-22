@@ -52,6 +52,14 @@ class Booking extends Model
         return $query->whereIn('status', BookingStatus::activeValues());
     }
 
+    public function scopeHistory(Builder $query): Builder
+    {
+        return $query->whereIn('status', [
+            BookingStatus::Completed->value,
+            BookingStatus::Cancelled->value,
+        ]);
+    }
+
     protected function casts(): array
     {
         return [
