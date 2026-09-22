@@ -102,7 +102,7 @@
                         </div>
 
                         <div class="mt-7 flex flex-col gap-3 sm:flex-row">
-                            <x-button :href="route('bookings.index')">Buat Jadwal Servis</x-button>
+                            <x-button :href="route('bookings.create', ['vehicle' => $selectedVehicle->id, 'date' => $calculation->recommended_date->toDateString()])">Buat Jadwal Servis</x-button>
                             <x-button :href="route('recommendations.show', $selectedVehicle)" variant="secondary">Lihat Rekomendasi</x-button>
                         </div>
                     @endif

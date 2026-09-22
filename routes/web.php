@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Customer\BookingController;
 use App\Http\Controllers\Customer\FuzzyCalculationController;
 use App\Http\Controllers\Customer\OdometerController;
 use App\Http\Controllers\Customer\ProfileController;
@@ -42,14 +43,10 @@ Route::middleware(['auth', 'customer'])->group(function (): void {
     Route::get('/recommendations/{vehicle}/calculation/{calculation}', [FuzzyCalculationController::class, 'show'])
         ->name('recommendations.calculation.show');
 
-    Route::view('/bookings', 'customer.placeholder', [
-        'eyebrow' => 'Kunjungan Bengkel',
-        'title' => 'Booking',
-        'description' => 'Jadwal aktif dan riwayat booking akan tersusun dalam satu alur.',
-        'emptyTitle' => 'Belum ada booking',
-        'emptyDescription' => 'Pemilihan slot bengkel akan tersedia pada tahap booking.',
-        'icon' => 'heroicon-o-calendar-days',
-    ])->name('bookings.index');
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
 
     Route::view('/service-history', 'customer.placeholder', [
         'eyebrow' => 'Catatan Kendaraan',
