@@ -5,6 +5,8 @@ namespace App\Filament\Resources\Bookings;
 use App\Actions\Booking\CancelBookingAction;
 use App\Actions\Booking\ConfirmBookingAction;
 use App\Actions\Booking\RescheduleBookingAction;
+use App\Actions\Booking\StartServiceAction;
+use App\Actions\Service\CompleteServiceAction;
 use App\Enums\BookingStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\Bookings\Pages\ListBookings;
@@ -19,6 +21,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
@@ -65,6 +68,7 @@ class BookingResource extends Resource
                 TextEntry::make('vehicle.user.email')->label('Email'),
                 TextEntry::make('vehicle.name')->label('Kendaraan'),
                 TextEntry::make('vehicle.plate_number')->label('Nomor polisi'),
+                TextEntry::make('vehicle.latestOdometer.odometer')->label('Odometer terbaru')->numeric()->suffix(' km')->placeholder('Belum ada'),
                 TextEntry::make('complaint')->label('Keluhan / catatan')->placeholder('Tidak ada catatan')->columnSpanFull(),
                 TextEntry::make('cancellation_reason')->label('Alasan pembatalan')->visible(fn (Booking $record) => filled($record->cancellation_reason))->columnSpanFull(),
             ])->columns(2),
@@ -108,6 +112,8 @@ class BookingResource extends Resource
                 self::confirmAction(),
                 self::rescheduleAction(),
                 self::cancelAction(),
+                self::startServiceAction(),
+                self::completeServiceAction(),
             ]);
     }
 
@@ -137,6 +143,39 @@ class BookingResource extends Resource
             ->requiresConfirmation()
             ->schema([Textarea::make('reason')->label('Alasan pembatalan')->required()->minLength(5)->maxLength(500)])
             ->action(fn (Booking $record, array $data) => self::runAction(fn () => app(CancelBookingAction::class)->execute(auth()->user(), $record, $data['reason']), 'Booking dibatalkan.'));
+    }
+
+    public static function startServiceAction(): Action
+    {
+        return Action::make('startService')->label('Mulai Servis')->icon(Heroicon::OutlinedWrenchScrewdriver)->color('warning')
+            ->visible(fn (Booking $record) => $record->status === BookingStatus::Confirmed)
+            ->requiresConfirmation()
+            ->modalDescription('Status booking akan berubah menjadi Sedang Servis dan tercatat pada timeline.')
+            ->schema([Textarea::make('note')->label('Catatan opsional')->maxLength(500)])
+            ->action(fn (Booking $record, array $data) => self::runAction(fn () => app(StartServiceAction::class)->execute(auth()->user(), $record, $data['note'] ?? null), 'Pengerjaan servis dimulai.'));
+    }
+
+    public static function completeServiceAction(): Action
+    {
+        return Action::make('completeService')->label('Selesaikan Servis')->icon(Heroicon::OutlinedCheckBadge)->color('success')
+            ->visible(fn (Booking $record) => $record->status === BookingStatus::InService)
+            ->modalHeading('Selesaikan servis')
+            ->modalDescription(fn (Booking $record) => sprintf(
+                '%s · %s · odometer terakhir %s km',
+                $record->vehicle->name,
+                $record->vehicle->user->name,
+                number_format($record->vehicle->latestOdometer?->odometer ?? 0, 0, ',', '.'),
+            ))
+            ->schema([
+                DateTimePicker::make('service_date')->label('Tanggal dan waktu servis')->default(now())->seconds(false)->maxDate(now())->required(),
+                TextInput::make('odometer')->label('Odometer servis')->numeric()->minValue(fn (Booking $record) => $record->vehicle->latestOdometer?->odometer ?? 0)->default(fn (Booking $record) => $record->vehicle->latestOdometer?->odometer)->suffix('km')->required(),
+                TextInput::make('service_type')->label('Jenis servis')->default('Servis Rutin')->maxLength(100)->required(),
+                Textarea::make('complaint')->label('Keluhan')->default(fn (Booking $record) => $record->complaint)->rows(3)->maxLength(5000),
+                Textarea::make('work_performed')->label('Pekerjaan yang dilakukan')->rows(4)->required()->maxLength(10000),
+                Textarea::make('notes')->label('Catatan tambahan')->rows(3)->maxLength(5000),
+                TextInput::make('total_cost')->label('Total biaya')->numeric()->minValue(0)->prefix('Rp')->required(),
+            ])
+            ->action(fn (Booking $record, array $data) => self::runAction(fn () => app(CompleteServiceAction::class)->execute(auth()->user(), $record, $data), 'Servis selesai dan siklus rekomendasi baru dibuat.'));
     }
 
     private static function runAction(callable $callback, string $successMessage): void

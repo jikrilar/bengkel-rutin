@@ -44,18 +44,19 @@ enum BookingStatus: string
     }
 
     /** @return list<self> */
-    public function t06Transitions(): array
+    public function transitions(): array
     {
         return match ($this) {
             self::Pending => [self::Confirmed, self::Cancelled],
-            self::Confirmed => [self::Cancelled],
-            self::InService, self::Completed, self::Cancelled => [],
+            self::Confirmed => [self::InService, self::Cancelled],
+            self::InService => [self::Completed],
+            self::Completed, self::Cancelled => [],
         };
     }
 
     public function canTransitionTo(self $status): bool
     {
-        return in_array($status, $this->t06Transitions(), true);
+        return in_array($status, $this->transitions(), true);
     }
 
     public function canBeRescheduled(): bool
@@ -65,6 +66,6 @@ enum BookingStatus: string
 
     public function canBeCancelled(): bool
     {
-        return in_array(self::Cancelled, $this->t06Transitions(), true);
+        return in_array(self::Cancelled, $this->transitions(), true);
     }
 }

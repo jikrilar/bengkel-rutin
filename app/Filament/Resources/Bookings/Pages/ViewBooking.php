@@ -15,6 +15,8 @@ class ViewBooking extends ViewRecord
             BookingResource::confirmAction(),
             BookingResource::rescheduleAction(),
             BookingResource::cancelAction(),
+            BookingResource::startServiceAction(),
+            BookingResource::completeServiceAction(),
         ];
     }
 }

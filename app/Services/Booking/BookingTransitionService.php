@@ -35,8 +35,10 @@ class BookingTransitionService
         $booking->events()->create([
             'event_type' => match ($newStatus) {
                 BookingStatus::Confirmed => BookingEventType::Confirmed,
+                BookingStatus::InService => BookingEventType::Started,
+                BookingStatus::Completed => BookingEventType::Completed,
                 BookingStatus::Cancelled => BookingEventType::Cancelled,
-                default => throw new InvalidBookingTransitionException('Event transisi T06 tidak tersedia.'),
+                default => throw new InvalidBookingTransitionException('Event untuk transisi booking tidak tersedia.'),
             },
             'actor_user_id' => $actor->id,
             'old_status' => $oldStatus,

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\BookingStatus;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -44,6 +46,22 @@ class User extends Authenticatable implements FilamentUser
     public function bookingEvents(): HasMany
     {
         return $this->hasMany(BookingEvent::class, 'actor_user_id');
+    }
+
+    public function bookings(): HasManyThrough
+    {
+        return $this->hasManyThrough(Booking::class, Vehicle::class);
+    }
+
+    public function activeBookings(): HasManyThrough
+    {
+        return $this->hasManyThrough(Booking::class, Vehicle::class)
+            ->whereIn('bookings.status', BookingStatus::activeValues());
+    }
+
+    public function serviceRecords(): HasManyThrough
+    {
+        return $this->hasManyThrough(ServiceRecord::class, Vehicle::class);
     }
 
     public function createdFuzzyConfigs(): HasMany
