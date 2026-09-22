@@ -85,6 +85,6 @@ RUN composer dump-autoload --no-dev --classmap-authoritative --no-interaction \
 FROM nginx:1.29-alpine AS nginx-production
 
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=frontend-builder /var/www/html/public /var/www/html/public
+COPY --from=production /var/www/html/public /var/www/html/public
 
 RUN ln -s /var/www/html/storage/app/public /var/www/html/public/storage

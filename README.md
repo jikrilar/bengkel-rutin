@@ -37,6 +37,17 @@ Jalankan migration dan seeder:
 docker compose exec app php artisan migrate --seed
 ```
 
+Seeder membuat akun admin development dari variable berikut di `.env`:
+
+```dotenv
+ADMIN_NAME="Admin Bengkel"
+ADMIN_EMAIL=admin@example.test
+ADMIN_PHONE=081200000000
+ADMIN_PASSWORD=password
+```
+
+Nilai contoh hanya untuk development. Gunakan password kuat yang berbeda sebelum menjalankan seeder pada environment lain.
+
 Akses layanan:
 
 | Layanan | URL / alamat |
@@ -46,6 +57,29 @@ Akses layanan:
 | Mailpit UI | http://localhost:8025 |
 | Mailpit SMTP dari container | `mailpit:1025` |
 | MySQL dari container | `mysql:3306` |
+
+## Application foundation
+
+Stack aplikasi saat ini:
+
+- Laravel 13
+- Livewire 3 dengan Alpine.js bawaan
+- Filament 4 pada `/admin`
+- Tailwind CSS 4 dan Vite
+- Pest 5
+- database queue, Laravel database notifications, dan scheduler baseline
+
+URL utama:
+
+| Area | URL |
+|---|---|
+| Landing page | http://localhost:8080 |
+| Register customer | http://localhost:8080/register |
+| Login customer | http://localhost:8080/login |
+| Customer dashboard | http://localhost:8080/dashboard |
+| Filament admin | http://localhost:8080/admin |
+
+Public registration selalu membuat role `customer`. Akun `admin` hanya dibuat melalui seeder/configuration dan customer akan menerima HTTP 403 jika mencoba membuka panel Filament.
 
 MySQL sengaja tidak dipublikasikan ke host. Gunakan `docker compose exec mysql mysql ...` atau tambahkan override lokal jika database client host benar-benar diperlukan.
 
@@ -58,6 +92,14 @@ docker compose exec app php artisan about
 docker compose exec app php artisan migrate
 docker compose exec app php artisan test
 docker compose exec app composer install
+```
+
+Quality checks untuk fondasi aplikasi:
+
+```bash
+docker compose exec app php artisan test
+docker compose exec app ./vendor/bin/pint --test
+docker compose exec node npm run build
 ```
 
 Tidak ada langkah yang membutuhkan executable PHP atau Composer dari host.
