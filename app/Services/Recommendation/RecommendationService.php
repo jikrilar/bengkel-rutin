@@ -6,6 +6,7 @@ use App\DTOs\Fuzzy\FuzzyInput;
 use App\DTOs\Recommendation\RecommendationResult;
 use App\Enums\CalculationTrigger;
 use App\Enums\RecommendationStatus;
+use App\Events\RecommendationStatusChanged;
 use App\Exceptions\Fuzzy\InvalidFuzzyRuleSetException;
 use App\Exceptions\Recommendation\RecommendationUnavailableException;
 use App\Models\FuzzyCalculation;
@@ -35,6 +36,17 @@ class RecommendationService
         CalculationTrigger $trigger,
         ?DateTimeInterface $calculatedAt = null,
     ): RecommendationResult {
+        $previousStatus = FuzzyCalculation::query()
+            ->where('vehicle_id', $vehicle->id)
+            ->orderByDesc('calculated_at')
+            ->orderByDesc('id')
+            ->value('final_status');
+        $previousStatus = match (true) {
+            $previousStatus instanceof RecommendationStatus => $previousStatus,
+            $previousStatus === null => null,
+            default => RecommendationStatus::from($previousStatus),
+        };
+
         $vehicle->load(['serviceProfile', 'latestOdometer']);
 
         if (
@@ -156,7 +168,15 @@ class RecommendationService
             calculatedAt: $calculationDateTime,
         );
 
-        $this->persist($vehicle, $config->id, $trigger, $result);
+        $calculation = $this->persist($vehicle, $config->id, $trigger, $result);
+
+        if (
+            $previousStatus !== null
+            && in_array($result->finalStatus, [RecommendationStatus::Approaching, RecommendationStatus::Urgent], true)
+            && $result->finalStatus->urgencyRank() > $previousStatus->urgencyRank()
+        ) {
+            RecommendationStatusChanged::dispatch($calculation, $previousStatus);
+        }
 
         return $result;
     }
@@ -166,8 +186,8 @@ class RecommendationService
         int $fuzzyConfigId,
         CalculationTrigger $trigger,
         RecommendationResult $result,
-    ): void {
-        DB::transaction(function () use ($vehicle, $fuzzyConfigId, $trigger, $result): void {
+    ): FuzzyCalculation {
+        return DB::transaction(function () use ($vehicle, $fuzzyConfigId, $trigger, $result): FuzzyCalculation {
             $memberships = $result->fuzzyResult->memberships;
             $calculation = FuzzyCalculation::query()->create([
                 'vehicle_id' => $vehicle->id,
@@ -221,6 +241,8 @@ class RecommendationService
                 },
                 $result->fuzzyResult->activeRuleResults(),
             ));
+
+            return $calculation;
         }, attempts: 3);
     }
 

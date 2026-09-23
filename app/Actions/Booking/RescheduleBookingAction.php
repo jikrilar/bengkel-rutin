@@ -2,7 +2,9 @@
 
 namespace App\Actions\Booking;
 
+use App\Enums\BookingEventType;
 use App\Enums\UserRole;
+use App\Events\BookingRescheduled;
 use App\Exceptions\Booking\BookingSlotUnavailableException;
 use App\Models\Booking;
 use App\Models\User;
@@ -34,7 +36,7 @@ class RescheduleBookingAction
 
         Gate::forUser($admin)->authorize('update', $booking);
 
-        return DB::transaction(function () use ($admin, $booking, $scheduledAt, $note): Booking {
+        $rescheduled = DB::transaction(function () use ($admin, $booking, $scheduledAt, $note): Booking {
             $settings = WorkshopSetting::query()->orderBy('id')->lockForUpdate()->firstOrFail();
             $lockedBooking = Booking::query()->lockForUpdate()->findOrFail($booking->id);
             $schedule = $scheduledAt instanceof DateTimeInterface
@@ -64,5 +66,13 @@ class RescheduleBookingAction
                 filled($note) ? trim((string) $note) : 'Jadwal diubah oleh admin.',
             );
         }, attempts: 3);
+
+        $bookingEvent = $rescheduled->events()
+            ->where('event_type', BookingEventType::Rescheduled)
+            ->latest('id')
+            ->firstOrFail();
+        BookingRescheduled::dispatch($rescheduled, $bookingEvent);
+
+        return $rescheduled;
     }
 }
