@@ -4,6 +4,7 @@ namespace App\Actions\Booking;
 
 use App\Enums\BookingStatus;
 use App\Enums\UserRole;
+use App\Events\BookingConfirmed;
 use App\Models\Booking;
 use App\Models\User;
 use App\Services\Booking\BookingTransitionService;
@@ -20,7 +21,7 @@ class ConfirmBookingAction
         $this->authorizeAdmin($admin);
         Gate::forUser($admin)->authorize('update', $booking);
 
-        return DB::transaction(function () use ($admin, $booking, $note): Booking {
+        $confirmed = DB::transaction(function () use ($admin, $booking, $note): Booking {
             $lockedBooking = Booking::query()->lockForUpdate()->findOrFail($booking->id);
 
             return $this->transitionService->transition(
@@ -30,6 +31,10 @@ class ConfirmBookingAction
                 $note ?: 'Booking dikonfirmasi oleh admin.',
             );
         }, attempts: 3);
+
+        BookingConfirmed::dispatch($confirmed);
+
+        return $confirmed;
     }
 
     private function authorizeAdmin(User $user): void

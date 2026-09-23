@@ -1,6 +1,7 @@
 @props(['title' => null])
 
 @php
+    $unreadNotificationsCount = auth()->user()->unreadNotifications()->count();
     $navigation = [
         ['label' => 'Dashboard', 'route' => 'dashboard', 'active' => 'dashboard', 'icon' => 'heroicon-o-squares-2x2'],
         ['label' => 'Kendaraan', 'route' => 'vehicles.index', 'active' => 'vehicles.*', 'icon' => 'heroicon-o-truck'],
@@ -45,6 +46,11 @@
                             >
                                 <x-dynamic-component :component="$item['icon']" class="size-5 shrink-0" />
                                 <span>{{ $item['label'] }}</span>
+                                @if ($item['route'] === 'notifications.index' && $unreadNotificationsCount > 0)
+                                    <span class="ml-auto min-w-5 rounded-full bg-brand-soft px-1.5 py-0.5 text-center text-xs font-semibold text-brand" aria-label="{{ $unreadNotificationsCount }} notifikasi belum dibaca">
+                                        {{ min($unreadNotificationsCount, 99) }}
+                                    </span>
+                                @endif
                             </a>
                         </li>
                     @endforeach
@@ -77,8 +83,11 @@
                     <x-heroicon-o-bars-3 class="size-5" />
                 </button>
                 <p class="hidden text-sm text-ink-muted sm:block lg:ml-auto">{{ now()->translatedFormat('l, d F Y') }}</p>
-                <a href="{{ route('notifications.index') }}" class="ml-auto grid size-10 place-items-center rounded-field text-ink-muted hover:bg-surface-muted hover:text-ink sm:ml-4" aria-label="Lihat notifikasi">
+                <a href="{{ route('notifications.index') }}" class="relative ml-auto grid size-10 place-items-center rounded-field text-ink-muted hover:bg-surface-muted hover:text-ink sm:ml-4" aria-label="Lihat notifikasi{{ $unreadNotificationsCount > 0 ? ', '.$unreadNotificationsCount.' belum dibaca' : '' }}">
                     <x-heroicon-o-bell class="size-5" />
+                    @if ($unreadNotificationsCount > 0)
+                        <span class="absolute right-1.5 top-1.5 size-2 rounded-full bg-brand" aria-hidden="true"></span>
+                    @endif
                 </a>
             </header>
 

@@ -123,6 +123,23 @@ Jika port host berbeda, ubah `VITE_PORT`, `VITE_HMR_HOST`, dan `VITE_HMR_CLIENT_
 - `queue` menjalankan `php artisan queue:work --sleep=3 --tries=3 --timeout=90`.
 - `scheduler` menjalankan `php artisan schedule:work`.
 - Worker queue menunggu migration Laravel tersedia pada first setup agar tidak crash-loop saat database masih kosong.
+- Notification database dan email diproses setelah transaction commit melalui database queue.
+
+Task operasional terjadwal:
+
+```bash
+docker compose exec app php artisan recommendations:recalculate-daily
+docker compose exec app php artisan recommendations:send-reminders
+docker compose exec app php artisan bookings:send-upcoming-reminders
+docker compose exec app php artisan schedule:list
+```
+
+Periksa atau retry failed job dengan command Laravel standar:
+
+```bash
+docker compose exec app php artisan queue:failed
+docker compose exec app php artisan queue:retry <uuid>
+```
 
 Status dan log:
 

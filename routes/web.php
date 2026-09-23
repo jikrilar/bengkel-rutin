@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Customer\BookingController;
 use App\Http\Controllers\Customer\FuzzyCalculationController;
+use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\OdometerController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\RecommendationController;
@@ -54,14 +55,9 @@ Route::middleware(['auth', 'customer'])->group(function (): void {
     Route::get('/service-history/{record}', [ServiceHistoryController::class, 'show'])
         ->name('service-history.show');
 
-    Route::view('/notifications', 'customer.placeholder', [
-        'eyebrow' => 'Tetap Terinformasi',
-        'title' => 'Notifikasi',
-        'description' => 'Pengingat servis dan pembaruan booking akan hadir di sini.',
-        'emptyTitle' => 'Tidak ada notifikasi baru',
-        'emptyDescription' => 'Kami akan memberi kabar ketika ada hal yang perlu Anda tindak lanjuti.',
-        'icon' => 'heroicon-o-bell',
-    ])->name('notifications.index');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::get('/notifications/{notification}', [NotificationController::class, 'open'])->name('notifications.open');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
