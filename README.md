@@ -170,6 +170,10 @@ docker compose ps
 
 Database disimpan di named volume `mysql_data`, sehingga `docker compose down`, container recreation, dan rebuild image tidak menghapus data.
 
+Pada development, `storage` dan `bootstrap/cache` menggunakan Linux named volume yang dipakai bersama oleh `app`, `queue`, dan `scheduler`. Nginx membaca `storage` secara read-only dan melayani public disk di `/storage/`. Ini menjaga compiled Blade views dan cache runtime tetap writable oleh PHP pada Docker Desktop/Windows, meskipun source code di-bind-mount dari host. Session dan cache aplikasi memakai tabel database; file runtime lama pada host tidak diperlukan oleh container.
+
+Jika `.env` lokal dibuat sebelum perubahan ini, pastikan `SESSION_DRIVER=database` dan `CACHE_STORE=database`, lalu jalankan `docker compose up -d --build` dan `docker compose exec app php artisan optimize:clear`. Jangan hapus volume database untuk memperbaiki error permission.
+
 ## Reset development environment
 
 Perintah berikut destruktif dan menghapus database, dependency volumes, serta pesan Mailpit development:
