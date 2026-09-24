@@ -11,7 +11,7 @@
             <div class="sm:text-right"><p class="text-sm text-ink-muted">Kendaraan</p><p class="mt-1 font-semibold text-ink">{{ $booking->vehicle->name }}</p><p class="text-sm text-ink-muted">{{ $booking->vehicle->brand }} {{ $booking->vehicle->model }}</p></div>
         </div>
         <div class="mt-6 border-t border-line pt-5"><p class="text-sm font-semibold text-ink">Keluhan / catatan</p><p class="mt-2 whitespace-pre-line text-sm leading-6 text-ink-muted">{{ $booking->complaint ?: 'Tidak ada catatan.' }}</p></div>
-        @if ($booking->cancellation_reason)<div class="mt-5 rounded-field bg-danger-soft p-4 text-sm text-danger"><strong>Alasan pembatalan:</strong> {{ $booking->cancellation_reason }}</div>@endif
+        @if ($booking->cancellation_reason)<div class="mt-5 rounded-field bg-danger-soft p-4 text-sm text-danger-ink"><strong>Alasan pembatalan:</strong> {{ $booking->cancellation_reason }}</div>@endif
     </section>
 
     <section class="mt-10">

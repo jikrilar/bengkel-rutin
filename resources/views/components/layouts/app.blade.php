@@ -15,23 +15,59 @@
 
 <x-layouts.public :title="$title">
     <a href="#main-content" class="sr-only fixed left-4 top-4 z-50 rounded-field bg-action px-4 py-3 text-sm font-semibold text-ink-inverse focus:not-sr-only">Lewati ke konten</a>
-    <div x-data="{ sidebarOpen: false, profileOpen: false }" x-on:keydown.escape.window="sidebarOpen = false; profileOpen = false" class="min-h-screen">
-        <div x-cloak x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-ink/55 lg:hidden" x-on:click="sidebarOpen = false" aria-hidden="true"></div>
+    <div
+        x-data="{
+            sidebarOpen: false,
+            desktop: window.matchMedia('(min-width: 1024px)').matches,
+            sidebarTrigger: null,
+            openSidebar(event) {
+                this.sidebarTrigger = event.currentTarget;
+                this.sidebarOpen = true;
+                this.$nextTick(() => this.$refs.sidebarClose.focus());
+            },
+            closeSidebar() {
+                this.sidebarOpen = false;
+                this.$nextTick(() => this.sidebarTrigger?.focus());
+            },
+            trapSidebar(event) {
+                if (!this.sidebarOpen || this.desktop) return;
+                const focusable = Array.from(this.$refs.sidebar.querySelectorAll('a[href], button:not([disabled])'));
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            }
+        }"
+        x-on:keydown.escape.window="if (sidebarOpen) closeSidebar()"
+        x-on:resize.window="desktop = window.matchMedia('(min-width: 1024px)').matches"
+        class="min-h-screen"
+    >
+        <div x-cloak x-show="sidebarOpen" x-transition.opacity class="fixed inset-0 z-40 bg-ink/55 lg:hidden" x-on:click="closeSidebar()" aria-hidden="true"></div>
 
         <aside
+            id="customer-sidebar"
+            x-ref="sidebar"
             x-bind:class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+            x-bind:inert="!desktop && !sidebarOpen"
+            x-bind:aria-hidden="!desktop && !sidebarOpen ? 'true' : null"
+            x-on:keydown.tab="trapSidebar($event)"
             class="fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-line bg-surface transition-transform duration-200 lg:translate-x-0"
             aria-label="Navigasi customer"
         >
             <div class="flex h-20 items-center justify-between border-b border-line px-5">
                 <a href="{{ route('dashboard') }}"><x-brand-mark /></a>
-                <button type="button" class="grid size-10 place-items-center rounded-field text-ink-muted hover:bg-surface-muted lg:hidden" x-on:click="sidebarOpen = false" aria-label="Tutup navigasi">
+                <button x-ref="sidebarClose" type="button" class="grid size-10 place-items-center rounded-field text-ink-muted hover:bg-surface-muted lg:hidden" x-on:click="closeSidebar()" aria-label="Tutup navigasi">
                     <x-heroicon-o-x-mark class="size-5" />
                 </button>
             </div>
 
             <nav class="flex-1 overflow-y-auto px-3 py-5">
-                <p class="px-3 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink-subtle">Menu utama</p>
+                <p class="px-3 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-ink-muted">Menu utama</p>
                 <ul class="mt-3 space-y-1">
                     @foreach ($navigation as $item)
                         <li>
@@ -79,7 +115,7 @@
 
         <div class="lg:pl-60">
             <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-line bg-canvas px-4 sm:px-6 lg:px-8">
-                <button type="button" class="grid size-10 place-items-center rounded-field border border-line bg-surface text-ink lg:hidden" x-on:click="sidebarOpen = true" aria-label="Buka navigasi">
+                <button type="button" class="grid size-10 place-items-center rounded-field border border-line bg-surface text-ink lg:hidden" x-on:click="openSidebar($event)" x-bind:aria-expanded="sidebarOpen.toString()" aria-controls="customer-sidebar" aria-label="Buka navigasi">
                     <x-heroicon-o-bars-3 class="size-5" />
                 </button>
                 <p class="hidden text-sm text-ink-muted sm:block lg:ml-auto">{{ now()->translatedFormat('l, d F Y') }}</p>

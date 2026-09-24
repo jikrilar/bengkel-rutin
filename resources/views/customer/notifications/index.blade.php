@@ -22,7 +22,7 @@
                         <div class="min-w-0">
                             <h3 class="font-semibold text-ink">{{ $notification->data['title'] ?? 'Pembaruan' }}</h3>
                             <p class="mt-1 text-sm leading-6 text-ink-muted">{{ $notification->data['message'] ?? '' }}</p>
-                            <time datetime="{{ $notification->created_at->toIso8601String() }}" class="mt-2 block text-xs text-ink-subtle">
+                            <time datetime="{{ $notification->created_at->toIso8601String() }}" class="mt-2 block text-xs text-ink-muted">
                                 {{ $notification->created_at->diffForHumans() }}
                             </time>
                         </div>

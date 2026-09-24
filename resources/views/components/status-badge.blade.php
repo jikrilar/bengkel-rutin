@@ -3,10 +3,10 @@
 @php
     $styles = [
         'success' => 'bg-success-soft text-success',
-        'warning' => 'bg-warning-soft text-warning',
-        'danger' => 'bg-danger-soft text-danger',
+        'warning' => 'bg-warning-soft text-warning-ink',
+        'danger' => 'bg-danger-soft text-danger-ink',
         'brand' => 'bg-brand-soft text-brand',
-        'neutral' => 'bg-neutral-soft text-neutral',
+        'neutral' => 'bg-neutral-soft text-neutral-ink',
     ];
 @endphp
 
