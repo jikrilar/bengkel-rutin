@@ -1,6 +1,6 @@
 # Sistem Jadwal Servis
 
-Fondasi aplikasi Laravel untuk Sistem Informasi Bengkel dan Penjadwalan Servis Rutin. Docker Compose adalah runtime development canonical; host tidak perlu memasang PHP, Composer, MySQL, Nginx, atau Node.js.
+Aplikasi Laravel untuk Sistem Informasi Bengkel dan Penjadwalan Servis Rutin, dari rekomendasi Fuzzy Tsukamoto hingga booking, penyelesaian servis, notifikasi, dan laporan admin. Docker Compose adalah runtime development canonical; host tidak perlu memasang PHP, Composer, MySQL, Nginx, atau Node.js.
 
 ## Requirements
 
@@ -58,7 +58,7 @@ Akses layanan:
 | Mailpit SMTP dari container | `mailpit:1025` |
 | MySQL dari container | `mysql:3306` |
 
-## Application foundation
+## Aplikasi
 
 Stack aplikasi saat ini:
 
@@ -67,7 +67,7 @@ Stack aplikasi saat ini:
 - Filament 4 pada `/admin`
 - Tailwind CSS 4 dan Vite
 - Pest 5
-- database queue, Laravel database notifications, dan scheduler baseline
+- database queue, Laravel database notifications, dan scheduler operasional
 
 URL utama:
 
@@ -77,6 +77,8 @@ URL utama:
 | Register customer | http://localhost:8080/register |
 | Login customer | http://localhost:8080/login |
 | Customer dashboard | http://localhost:8080/dashboard |
+| Kendaraan dan rekomendasi | http://localhost:8080/vehicles dan http://localhost:8080/recommendations |
+| Booking dan riwayat servis | http://localhost:8080/bookings dan http://localhost:8080/service-history |
 | Filament admin | http://localhost:8080/admin |
 
 Public registration selalu membuat role `customer`. Akun `admin` hanya dibuat melalui seeder/configuration dan customer akan menerima HTTP 403 jika mencoba membuka panel Filament.
@@ -94,7 +96,7 @@ docker compose exec app php artisan test
 docker compose exec app composer install
 ```
 
-Quality checks untuk fondasi aplikasi:
+Quality checks sebelum menyerahkan aplikasi:
 
 ```bash
 docker compose exec app php artisan test
