@@ -85,6 +85,35 @@ it('returns actionable dashboard values from current database state', function (
         ->and($service->urgentVehicles())->toHaveCount(1);
 });
 
+it('limits urgent dashboard vehicles in score order without loading every match', function () {
+    $customer = User::factory()->create();
+    $vehicles = Vehicle::factory()->count(12)->for($customer)->create();
+
+    foreach ($vehicles as $index => $vehicle) {
+        FuzzyCalculation::factory()->for($vehicle)->create([
+            'score' => 70 + $index,
+            'fuzzy_status' => RecommendationStatus::Urgent,
+            'final_status' => RecommendationStatus::Urgent,
+            'calculated_at' => '2026-09-23 09:00:00',
+        ]);
+    }
+
+    FuzzyCalculation::factory()->for($vehicles->first())->create([
+        'score' => 100,
+        'fuzzy_status' => RecommendationStatus::Urgent,
+        'final_status' => RecommendationStatus::Urgent,
+        'calculated_at' => '2026-09-22 09:00:00',
+    ]);
+
+    $topVehicles = app(AdminDashboardService::class)->urgentVehicles(3);
+
+    expect($topVehicles->modelKeys())->toBe([
+        $vehicles[11]->id,
+        $vehicles[10]->id,
+        $vehicles[9]->id,
+    ]);
+});
+
 it('renders reports and final dashboard for admin but blocks customers', function () {
     $admin = User::factory()->admin()->create();
     $customer = User::factory()->create();
