@@ -291,6 +291,15 @@ Setiap rule menggunakan operator AND:
 
 Setiap rule menghasilkan nilai `z`.
 
+Fungsi keanggotaan output monoton untuk invers Tsukamoto didefinisikan pada rentang berikut:
+
+```text
+not_urgent: μ(z) = (40 - z) / 40, 0 ≤ z ≤ 40
+urgent:     μ(z) = (z - 40) / 60, 40 ≤ z ≤ 100
+```
+
+Dengan firing strength `α`, nilai inversnya adalah `z = 40 × (1 - α)` untuk `not_urgent` dan `z = 40 + 60 × α` untuk `urgent`. Skor crisp tetap diinterpretasikan dengan batas status pada bagian 6.8.
+
 Semua hasil digabungkan:
 
 ```text
