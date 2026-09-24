@@ -195,4 +195,18 @@ it('shows only the authenticated customers notifications and safely marks them r
     $this->actingAs($customer)->get(route('notifications.open', $own))
         ->assertRedirect(route('recommendations.index', absolute: false));
     $this->actingAs($customer)->patch(route('notifications.read', $foreign))->assertNotFound();
+    $this->actingAs($customer)->get(route('notifications.open', $foreign))->assertNotFound();
+
+    $unsafe = $customer->notifications()->create([
+        'id' => (string) Str::uuid(),
+        'type' => ServiceApproachingNotification::class,
+        'data' => [
+            'title' => 'Unsafe target',
+            'message' => 'Target not followed.',
+            'target_url' => '/\\external.example',
+            'dedup_key' => 'unsafe-target',
+        ],
+    ]);
+    $this->actingAs($customer)->get(route('notifications.open', $unsafe))
+        ->assertRedirect(route('notifications.index'));
 });
