@@ -77,13 +77,13 @@ it('persists a complete reproducible recommendation snapshot and active rules', 
         ->and((float) $calculation->progress_time)->toBe(75.0)
         ->and((float) $calculation->usage_intensity)->toBe(100.0)
         ->and($calculation->score)->not->toBeNull()
-        ->and($calculation->fuzzy_status)->toBe(RecommendationStatus::Approaching)
+        ->and($calculation->fuzzy_status)->toBe(RecommendationStatus::NotNeeded)
         ->and($calculation->estimated_due_by_km)->not->toBeNull()
         ->and($calculation->estimated_due_by_time)->not->toBeNull()
         ->and($calculation->estimated_due_date)->not->toBeNull()
         ->and($calculation->recommended_date)->not->toBeNull()
         ->and($calculation->final_status)->toBe(RecommendationStatus::Approaching)
-        ->and($calculation->guard_applied)->toBeFalse()
+        ->and($calculation->guard_applied)->toBeTrue()
         ->and($vehicle->fresh()->latestFuzzyCalculation->is($calculation))->toBeTrue();
 
     expect($calculation->ruleResults)->not->toBeEmpty()

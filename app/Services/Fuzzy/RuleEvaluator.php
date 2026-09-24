@@ -41,10 +41,12 @@ class RuleEvaluator
     private function inverseConsequent(string $consequent, float $alpha): float
     {
         return match ($consequent) {
-            // Monotonically decreasing set: mu_not_urgent(z) = (100 - z) / 100.
-            'not_urgent' => 100 * (1 - $alpha),
-            // Monotonically increasing set: mu_urgent(z) = z / 100.
-            'urgent' => 100 * $alpha,
+            // Monotonically decreasing on [0, 40]: mu_not_urgent(z) = (40 - z) / 40.
+            // A neutral usage fallback (50% normal + 50% intensive) must not make
+            // a just-serviced vehicle with zero progress "approaching".
+            'not_urgent' => 40 * (1 - $alpha),
+            // Monotonically increasing on [40, 100]: mu_urgent(z) = (z - 40) / 60.
+            'urgent' => 40 + 60 * $alpha,
             default => throw new InvalidFuzzyRuleSetException(
                 "Unknown consequent [{$consequent}].",
             ),

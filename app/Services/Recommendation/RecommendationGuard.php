@@ -36,10 +36,12 @@ class RecommendationGuard
             'final_status' => $projectedStatus,
             'guard_applied' => true,
             'guard_reason' => sprintf(
-                'Projected service due date is %d day(s) away, requiring escalation from %s to %s.',
-                $daysUntilDue,
-                $fuzzyStatus->value,
-                $projectedStatus->value,
+                'Jatuh tempo servis diproyeksikan %s; status dinaikkan dari %s menjadi %s.',
+                $daysUntilDue < 0
+                    ? sprintf('terlewat %d hari', abs($daysUntilDue))
+                    : sprintf('dalam %d hari', $daysUntilDue),
+                $fuzzyStatus->label(),
+                $projectedStatus->label(),
             ),
         ];
     }

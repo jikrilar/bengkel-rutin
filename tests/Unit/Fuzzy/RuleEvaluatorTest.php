@@ -51,9 +51,9 @@ it('uses monotonic Tsukamoto consequents and inverse z instead of Sugeno constan
     $urgentLow = $evaluator->evaluate($lowAlpha, $urgentRule)[0];
     $urgentHigh = $evaluator->evaluate($highAlpha, $urgentRule)[0];
 
-    expect($notUrgentLow->zValue)->toBe(80.0)
-        ->and($notUrgentHigh->zValue)->toEqualWithDelta(20.0, 0.000001)
-        ->and($urgentLow->zValue)->toBe(20.0)
-        ->and($urgentHigh->zValue)->toBe(80.0)
-        ->and($urgentHigh->weightedValue)->toBe(64.0);
+    expect($notUrgentLow->zValue)->toBe(32.0)
+        ->and($notUrgentHigh->zValue)->toEqualWithDelta(8.0, 0.000001)
+        ->and($urgentLow->zValue)->toBe(52.0)
+        ->and($urgentHigh->zValue)->toBe(88.0)
+        ->and($urgentHigh->weightedValue)->toBe(70.4);
 });

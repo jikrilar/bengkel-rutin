@@ -8,6 +8,7 @@ use App\Enums\BookingEventType;
 use App\Enums\BookingStatus;
 use App\Enums\CalculationTrigger;
 use App\Enums\OdometerSource;
+use App\Enums\RecommendationStatus;
 use App\Events\ServiceCompleted;
 use App\Exceptions\Booking\InvalidBookingTransitionException;
 use App\Models\Booking;
@@ -101,6 +102,8 @@ it('completes service transaction and starts a new recommendation cycle', functi
         ->and($calculation->trigger_type)->toBe(CalculationTrigger::ServiceCompleted)
         ->and((float) $calculation->progress_km)->toBe(0.0)
         ->and((float) $calculation->progress_time)->toBe(0.0)
+        ->and($calculation->fuzzy_status)->toBe(RecommendationStatus::NotNeeded)
+        ->and($calculation->final_status)->toBe(RecommendationStatus::NotNeeded)
         ->and($calculation->baseline_odometer)->toBe(12100)
         ->and($calculation->ruleResults)->not->toBeEmpty()
         ->and(FuzzyCalculation::query()->whereKey($previousCalculationId)->exists())->toBeTrue()

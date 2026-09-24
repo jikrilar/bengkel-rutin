@@ -34,7 +34,11 @@ afterEach(fn () => CarbonImmutable::setTestNow());
 function t08ScheduledVehicle(bool $completeBaseline = true): Vehicle
 {
     $customer = User::factory()->create();
-    $profile = ServiceProfile::factory()->create();
+    // Due in 22 days on the test date, so the approaching transition is deterministic.
+    $profile = ServiceProfile::factory()->create([
+        'interval_km' => 4000,
+        'interval_days' => 75,
+    ]);
     $vehicle = Vehicle::factory()->for($customer)->for($profile)->create($completeBaseline ? [
         'baseline_service_date' => '2026-08-01',
         'baseline_odometer' => 10000,
