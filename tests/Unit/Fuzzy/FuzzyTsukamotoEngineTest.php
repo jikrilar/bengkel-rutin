@@ -74,3 +74,26 @@ it('activates only R18 for fully critical intensive input', function () {
     expect(array_column($result->activeRuleResults(), 'code'))->toBe(['R18'])
         ->and($result->score)->toBe(100.0);
 });
+
+it('keeps a newly serviced vehicle below the approaching threshold with neutral usage fallback', function () {
+    $result = fuzzyEngine()->calculate(
+        new FuzzyInput(0, 0, 100),
+        defaultFuzzyConfiguration(),
+        canonicalFuzzyRules(),
+    );
+
+    expect(array_column($result->activeRuleResults(), 'code'))->toBe(['R01', 'R02'])
+        ->and($result->score)->toBe(20.0)
+        ->and($result->score)->toBeLessThan(40.0);
+});
+
+it('keeps critical progress urgent with neutral usage fallback', function () {
+    $result = fuzzyEngine()->calculate(
+        new FuzzyInput(110, 110, 100),
+        defaultFuzzyConfiguration(),
+        canonicalFuzzyRules(),
+    );
+
+    expect(array_column($result->activeRuleResults(), 'code'))->toBe(['R17', 'R18'])
+        ->and($result->score)->toBe(70.0);
+});

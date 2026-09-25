@@ -13,7 +13,7 @@ it('escalates when the projected due date is more urgent', function () {
 
     expect($result['final_status'])->toBe(RecommendationStatus::Urgent)
         ->and($result['guard_applied'])->toBeTrue()
-        ->and($result['guard_reason'])->toContain('5 day(s)')
+        ->and($result['guard_reason'])->toContain('dalam 5 hari')
         ->and($fuzzyScore)->toBe(68.4);
 });
 
@@ -27,6 +27,18 @@ it('never de-escalates a fuzzy status', function () {
     expect($result['final_status'])->toBe(RecommendationStatus::Urgent)
         ->and($result['guard_applied'])->toBeFalse()
         ->and($result['guard_reason'])->toBeNull();
+});
+
+it('explains an overdue escalation in customer language', function () {
+    $result = (new RecommendationGuard)->apply(
+        RecommendationStatus::NotNeeded,
+        new DateTimeImmutable('2026-05-01'),
+        new DateTimeImmutable('2026-05-04'),
+    );
+
+    expect($result['final_status'])->toBe(RecommendationStatus::Urgent)
+        ->and($result['guard_reason'])->toContain('terlewat 3 hari')
+        ->and($result['guard_reason'])->toContain('Belum Perlu Servis');
 });
 
 it('maps fuzzy score boundaries to the locked statuses', function () {

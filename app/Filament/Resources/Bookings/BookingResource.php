@@ -123,7 +123,7 @@ class BookingResource extends Resource
             ->visible(fn (Booking $record) => $record->status === BookingStatus::Pending)
             ->requiresConfirmation()
             ->schema([Textarea::make('note')->label('Catatan opsional')->maxLength(500)])
-            ->action(fn (Booking $record, array $data) => self::runAction(fn () => app(ConfirmBookingAction::class)->execute(auth()->user(), $record, $data['note'] ?? null), 'Booking dikonfirmasi.'));
+            ->action(fn (Booking $record, array $data) => self::runAction($record, fn () => app(ConfirmBookingAction::class)->execute(auth()->user(), $record, $data['note'] ?? null), 'Booking dikonfirmasi.'));
     }
 
     public static function rescheduleAction(): Action
@@ -131,9 +131,9 @@ class BookingResource extends Resource
         return Action::make('reschedule')->label('Jadwalkan Ulang')->icon(Heroicon::OutlinedCalendarDateRange)
             ->visible(fn (Booking $record) => $record->status->canBeRescheduled())
             ->schema([
-                DateTimePicker::make('scheduled_at')->label('Jadwal baru')->seconds(false)->minDate(now())->required(),
+                DateTimePicker::make('scheduled_at')->label('Jadwal baru')->seconds(false)->minDate(fn () => now()->addMinute()->startOfMinute())->required(),
                 Textarea::make('note')->label('Alasan / catatan')->maxLength(500),
-            ])->action(fn (Booking $record, array $data) => self::runAction(fn () => app(RescheduleBookingAction::class)->execute(auth()->user(), $record, $data['scheduled_at'], $data['note'] ?? null), 'Jadwal booking diperbarui.'));
+            ])->action(fn (Booking $record, array $data) => self::runAction($record, fn () => app(RescheduleBookingAction::class)->execute(auth()->user(), $record, $data['scheduled_at'], $data['note'] ?? null), 'Jadwal booking diperbarui.'));
     }
 
     public static function cancelAction(): Action
@@ -142,7 +142,7 @@ class BookingResource extends Resource
             ->visible(fn (Booking $record) => $record->status->canBeCancelled())
             ->requiresConfirmation()
             ->schema([Textarea::make('reason')->label('Alasan pembatalan')->required()->minLength(5)->maxLength(500)])
-            ->action(fn (Booking $record, array $data) => self::runAction(fn () => app(CancelBookingAction::class)->execute(auth()->user(), $record, $data['reason']), 'Booking dibatalkan.'));
+            ->action(fn (Booking $record, array $data) => self::runAction($record, fn () => app(CancelBookingAction::class)->execute(auth()->user(), $record, $data['reason']), 'Booking dibatalkan.'));
     }
 
     public static function startServiceAction(): Action
@@ -152,7 +152,7 @@ class BookingResource extends Resource
             ->requiresConfirmation()
             ->modalDescription('Status booking akan berubah menjadi Sedang Servis dan tercatat pada timeline.')
             ->schema([Textarea::make('note')->label('Catatan opsional')->maxLength(500)])
-            ->action(fn (Booking $record, array $data) => self::runAction(fn () => app(StartServiceAction::class)->execute(auth()->user(), $record, $data['note'] ?? null), 'Pengerjaan servis dimulai.'));
+            ->action(fn (Booking $record, array $data) => self::runAction($record, fn () => app(StartServiceAction::class)->execute(auth()->user(), $record, $data['note'] ?? null), 'Pengerjaan servis dimulai.'));
     }
 
     public static function completeServiceAction(): Action
@@ -175,13 +175,14 @@ class BookingResource extends Resource
                 Textarea::make('notes')->label('Catatan tambahan')->rows(3)->maxLength(5000),
                 TextInput::make('total_cost')->label('Total biaya')->numeric()->minValue(0)->prefix('Rp')->required(),
             ])
-            ->action(fn (Booking $record, array $data) => self::runAction(fn () => app(CompleteServiceAction::class)->execute(auth()->user(), $record, $data), 'Servis selesai dan siklus rekomendasi baru dibuat.'));
+            ->action(fn (Booking $record, array $data) => self::runAction($record, fn () => app(CompleteServiceAction::class)->execute(auth()->user(), $record, $data), 'Servis selesai dan siklus rekomendasi baru dibuat.'));
     }
 
-    private static function runAction(callable $callback, string $successMessage): void
+    private static function runAction(Booking $record, callable $callback, string $successMessage): void
     {
         try {
             $callback();
+            $record->refresh();
             Notification::make()->success()->title($successMessage)->send();
         } catch (Throwable $exception) {
             report($exception);

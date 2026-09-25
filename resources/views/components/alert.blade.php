@@ -3,8 +3,8 @@
 @php
     $styles = [
         'success' => 'border-success/25 bg-success-soft text-success',
-        'warning' => 'border-warning/25 bg-warning-soft text-warning',
-        'danger' => 'border-danger/25 bg-danger-soft text-danger',
+        'warning' => 'border-warning/25 bg-warning-soft text-warning-ink',
+        'danger' => 'border-danger/25 bg-danger-soft text-danger-ink',
         'info' => 'border-line-strong bg-surface-muted text-ink',
     ];
 @endphp

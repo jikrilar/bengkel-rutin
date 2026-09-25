@@ -70,7 +70,7 @@
                 @endif
             </section>
 
-            <section id="odometer" class="scroll-mt-24 border-t border-line pt-9">
+            <section id="odometer-section" class="scroll-mt-24 border-t border-line pt-9">
                 <x-section-header title="Update odometer" description="Setiap pembaruan membuat catatan baru dan menghitung ulang rekomendasi jika baseline lengkap." />
 
                 <form method="POST" action="{{ route('vehicles.odometer.store', $vehicle) }}" class="mt-5 grid gap-5 rounded-panel border border-line bg-surface p-5 sm:grid-cols-2 sm:p-6">
@@ -80,7 +80,7 @@
                         <p class="mt-1 text-2xl font-semibold tabular-nums text-ink">{{ number_format($vehicle->latestOdometer?->odometer ?? 0, 0, ',', '.') }} km</p>
                     </div>
                     <x-input name="odometer" label="Odometer baru" type="number" :min="$vehicle->latestOdometer?->odometer ?? 0" inputmode="numeric" required hint="Nilai tidak boleh lebih kecil dari catatan terakhir." />
-                    <x-input name="recorded_at" label="Waktu pencatatan" type="datetime-local" :value="now()->format('Y-m-d\TH:i')" :max="now()->format('Y-m-d\TH:i')" required />
+                    <x-input name="recorded_at" label="Waktu pencatatan" type="datetime-local" step="1" :value="now()->format('Y-m-d\TH:i:s')" :min="$vehicle->latestOdometer?->recorded_at?->format('Y-m-d\TH:i:s')" :max="now()->format('Y-m-d\TH:i:s')" required />
                     <div class="sm:col-span-2 sm:text-right">
                         <x-button type="submit">Update Odometer</x-button>
                     </div>
@@ -128,7 +128,7 @@
             <div class="lg:sticky lg:top-24">
                 <h2 class="text-lg font-semibold text-ink">Tindakan utama</h2>
                 <div class="mt-4 flex flex-col gap-3">
-                    <x-button href="#odometer">Update Odometer</x-button>
+                    <x-button href="#odometer-section">Update Odometer</x-button>
                     @if ($calculation)
                         <x-button :href="route('recommendations.show', $vehicle)" variant="secondary">Lihat Rekomendasi</x-button>
                     @endif

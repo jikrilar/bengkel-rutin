@@ -33,10 +33,13 @@
     --color-success-soft: #e7efea;
     --color-warning: #a56a19;
     --color-warning-soft: #f5eedc;
+    --color-warning-ink: #945d16;
     --color-danger: #b8493f;
     --color-danger-soft: #f5e5e2;
+    --color-danger-ink: #a33d34;
     --color-neutral: #77746d;
     --color-neutral-soft: #eceae5;
+    --color-neutral-ink: #64615b;
 
     --radius-field: 0.5rem;
     --radius-panel: 0.75rem;

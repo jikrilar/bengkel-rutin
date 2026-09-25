@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Enums\BookingStatus;
 use App\Enums\RecommendationStatus;
 use App\Models\Booking;
+use App\Models\FuzzyCalculation;
 use App\Models\Vehicle;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -44,9 +45,16 @@ class AdminDashboardService
         return Vehicle::query()
             ->with(['user', 'latestFuzzyCalculation'])
             ->whereHas('latestFuzzyCalculation', fn ($query) => $query->where('final_status', RecommendationStatus::Urgent))
+            ->orderByDesc(
+                FuzzyCalculation::query()
+                    ->select('score')
+                    ->whereColumn('vehicle_id', 'vehicles.id')
+                    ->orderByDesc('calculated_at')
+                    ->orderByDesc('id')
+                    ->limit(1),
+            )
+            ->limit($limit)
             ->get()
-            ->sortByDesc(fn (Vehicle $vehicle) => (float) $vehicle->latestFuzzyCalculation->score)
-            ->take($limit)
             ->values();
     }
 }

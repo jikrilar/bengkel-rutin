@@ -21,7 +21,7 @@
         @if ($type !== 'password') value="{{ old($name, $value) }}" @endif
         @if ($errors->has($name)) aria-invalid="true" aria-describedby="{{ $errorId }}" @elseif ($hint) aria-describedby="{{ $hintId }}" @endif
         {{ $attributes->except('id')->class([
-            'min-h-11 w-full rounded-field border bg-surface px-3.5 text-sm text-ink transition placeholder:text-ink-subtle focus:border-brand focus:ring-2 focus:ring-brand-soft focus:outline-none',
+            'min-h-11 w-full rounded-field border bg-surface px-3.5 text-sm text-ink transition placeholder:text-ink-muted focus:border-brand focus:ring-2 focus:ring-brand-soft focus:outline-none',
             'border-danger' => $errors->has($name),
             'border-line-strong' => ! $errors->has($name),
         ]) }}

@@ -33,7 +33,13 @@ class NotificationController extends Controller
         $record->markAsRead();
         $target = $record->data['target_url'] ?? null;
 
-        if (is_string($target) && str_starts_with($target, '/') && ! str_starts_with($target, '//')) {
+        if (
+            is_string($target)
+            && str_starts_with($target, '/')
+            && ! str_starts_with($target, '//')
+            && ! str_contains($target, '\\')
+            && ! preg_match('/[\x00-\x1f\x7f]/', $target)
+        ) {
             return redirect($target);
         }
 
